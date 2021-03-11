@@ -7,6 +7,9 @@ audio_sample_queue = Queue()
 input_stream = None
 
 def call_mood_lighting_ai_service(audio_sample, ai_service):
+    """
+    Helper method for the tanslate_audio_to_color task which is used for calling the AI service
+    """
     request_headers = { 'Content-Type': 'application/octet-stream' }
     data = { 'audioSample': audio_sample }
     response = requests.post(ai_service, data=data)
