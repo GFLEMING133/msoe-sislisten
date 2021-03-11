@@ -1,0 +1,9 @@
+stages:
+  - python-test
+
+python-test:  
+  stage: python-test
+  image: python:latest
+  script:
+    - pip install -r requirements.txt
+    - pytest
