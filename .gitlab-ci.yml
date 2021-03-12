@@ -1,0 +1,11 @@
+stages:
+  - python-test
+
+python-test:  
+  stage: python-test
+  image: python:latest
+  script:
+    - apt-get update -y
+    - apt-get install -y libasound-dev portaudio19-dev libportaudio2 libportaudiocpp0
+    - pip install -r requirements.txt
+    - pytest
