@@ -5,7 +5,6 @@ import argparse
 from queue import Queue
 
 app = Flask(__name__)
-color_coordinate_queue = Queue()
 
 @app.route('/mood_lighting', methods=['POST'])
 def mood_lighting():
