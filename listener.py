@@ -1,8 +1,11 @@
-import requests
 import io
 import pyaudio
+import requests
+import color_map_2d
+import numpy
 
 input_stream = None
+
 
 def call_mood_lighting_ai_service(audio_sample, ai_service):
     """
@@ -15,12 +18,6 @@ def call_mood_lighting_ai_service(audio_sample, ai_service):
     response.raise_for_status()
     return response.json()
 
-def translate_coordinates_to_color(ai_service, color_coordinate_queue):
-    """
-    Periodic task which takes audio samples off of the queue and translates the coordinates to a color.
-    """
-    # TODO
-    pass
 
 def read_from_input_device(sampling_rate, record_seconds, color_coordinate_queue):
     """
@@ -40,4 +37,4 @@ def read_from_input_device(sampling_rate, record_seconds, color_coordinate_queue
     data_bytes = input_stream.read(buffer_size)
     data_stream = io.BytesIO(data_bytes)
     ai_service_response = call_mood_lighting_ai_service(audio_sample)
-    color_coordinate_queue.put(ai_service_response)
+    return ai_service_response
