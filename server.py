@@ -1,15 +1,24 @@
-from flask import Flask
-from waitress import serve
 import os
 import argparse
+import threading
+from flask import Flask
+from waitress import serve
 from queue import Queue
+from listener import listen
+import threading
 
 app = Flask(__name__)
+@app.route('/mood_lighting_begin', methods=['GET'])
+def mood_lighting_begin():
+    global t
+    t.start()
+    return "Listener started!"
 
-@app.route('/mood_lighting', methods=['POST'])
-def mood_lighting():
-    # TODO
-	return "Welcome to sislisten"
+@app.route('/mood_lighting_end', methods=['GET'])
+def mood_lighting_end():
+    global t
+    t.cancel()
+    return "Listener stopped!"
 
 def parse_arguments():
     client_args = argparse.ArgumentParser(
@@ -53,6 +62,10 @@ if __name__ == '__main__':
     app.config['sampling_rate'] = args.samplingrate
     app.config['ai_service'] = args.aiservice
     app.config['sisbot_port'] = args.sisbotport
+    #     def __init__(self, callback=None, period=1, name=None, *args, **kwargs):
+    # pt = PeriodicThread(listen, 5, "Mood Lighting Listener", [app.config['sampling_rate'], app.config['record_seconds']])
+    global t
+    t = threading.Timer(5, listen, [app.config['sampling_rate'], app.config['record_seconds']])
     flask_env = os.environ.get('FLASK_ENV')
     if flask_env is not None and flask_env.lower() == 'production':
         serve(app, host='127.0.0.1', port=5000, threads=6)

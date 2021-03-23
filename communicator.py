@@ -13,5 +13,7 @@ def communicate_color_to_table(rgba, table_service, settings=None):
     table_response = requests.post(table_service, json=wrapper)
     if table_response.status_code == requests.codes.ok:
         print(f'Successfully updated color to {rgba}')
+
     else:
         print(f'Error in table request - code: {table_response.status_code}')
+    return table_response.status_code
