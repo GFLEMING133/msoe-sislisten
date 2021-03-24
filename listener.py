@@ -55,5 +55,5 @@ def listen(sampling_rate, record_seconds, ai_service):
     color = translate_coordinates_to_color(response)
     print("Got Color!")
     communicate_color_to_table(color)
-    executor.submit(call_mood_lighting_ai_service, data_stream, ai_service)
+    # executor.submit(call_mood_lighting_ai_service, data_stream, ai_service)
     return True
