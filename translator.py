@@ -11,7 +11,7 @@ def translate_coordinates_to_color(response, settings=None):
 
     soft_valence = response["valence"]
     soft_energy = response["energy"]
-    alpha = str(response["alpha"]) # will come from volume of audio
+    alpha = response["alpha"]  # will come from volume of audio
 
     grid = (622, 622, 0)
     colors = {
@@ -58,5 +58,6 @@ def translate_coordinates_to_color(response, settings=None):
     y = y_center - int((h/2) * soft_energy)
 
     color = numpy.median(emo_map[y-2:y+2, x-2:x+2], axis=0).mean(axis=0)
-
-    return format(int(color[2]), '02x') + format(int(color[1]), '02x') + format(int(color[0]), '02x') + alpha
+    response = "#" + format(int(color[2]), '02x') + format(int(color[1]), '02x') + format(int(color[0]), '02x') + format(int(alpha), '02x')
+    print(response)
+    return response

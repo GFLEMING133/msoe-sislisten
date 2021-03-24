@@ -23,10 +23,11 @@ def call_mood_lighting_ai_service(audio_sample, ai_service):
     # Raise an error if the response returns an error
     response.raise_for_status()
     response = response.json()
-    color = translate_coordinates_to_color(response)
-    communicate_color_to_table(color)
+    print(response)
+    return response
 
-def listen(sampling_rate, record_seconds):
+
+def listen(sampling_rate, record_seconds, ai_service):
     """
     Task which reads in audio samples and starts off threads
      to handle the responses
@@ -34,6 +35,7 @@ def listen(sampling_rate, record_seconds):
     global input_stream, executor
     buffer_size = sampling_rate * record_seconds
     print('buffer size ' + str(buffer_size))
+
     if not input_stream:
         pa = pyaudio.PyAudio()
         print(sampling_rate)
@@ -46,9 +48,11 @@ def listen(sampling_rate, record_seconds):
             frames_per_buffer=buffer_size
         )
 
-
     data_bytes = input_stream.read(buffer_size)
     data_stream = io.BytesIO(data_bytes)
-
-    executor.submit(call_mood_lighting_ai_service, audio_sample)
-
+    response = call_mood_lighting_ai_service(data_stream, ai_service)
+    color = translate_coordinates_to_color(response)
+    print("Got Color!")
+    communicate_color_to_table(color)
+    # executor.submit(call_mood_lighting_ai_service, data_stream, ai_service) <<< where we'll put thread pool pattern.... hopefully
+    return True
