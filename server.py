@@ -20,8 +20,8 @@ def mood_lighting_begin():
 
 @app.route('/mood_lighting_end', methods=['GET'])
 def mood_lighting_end():
-    global t
-    t.cancel()
+    # global t
+    # t.cancel()
     return "Listener stopped!"
 
 def parse_arguments():

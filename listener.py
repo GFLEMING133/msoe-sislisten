@@ -20,10 +20,11 @@ def call_mood_lighting_ai_service(audio_sample, ai_service):
     request_headers = { 'Content-Type': 'application/octet-stream' }
     data = { 'audioSample': audio_sample }
     response = requests.post(ai_service, data=data)
-    # Raise an error if the response returns an error
-    response.raise_for_status()
-    response = response.json()
-    print(response)
+    if response.status_code == requests.codes.ok:
+        response = response.json()
+        print(response)
+    else:
+        print(f'Error in AI Service call - code: {response.status_code}')
     return response
 
 
@@ -54,5 +55,5 @@ def listen(sampling_rate, record_seconds, ai_service):
     color = translate_coordinates_to_color(response)
     print("Got Color!")
     communicate_color_to_table(color)
-    # executor.submit(call_mood_lighting_ai_service, data_stream, ai_service) <<< where we'll put thread pool pattern.... hopefully
+    executor.submit(call_mood_lighting_ai_service, data_stream, ai_service)
     return True
