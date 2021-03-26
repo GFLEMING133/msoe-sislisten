@@ -15,3 +15,5 @@ class TestTranslator:
         # Assert
         assert_that(color).is_not_none()
         assert_that(color).is_type_of(str)
+        assert_that(len(color)).is_equal_to(9)
+        assert_that(color[:1]).is_equal_to('#')

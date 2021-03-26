@@ -1,15 +1,23 @@
-from flask import Flask
-from waitress import serve
 import os
 import argparse
+from flask import Flask
+from waitress import serve
 from queue import Queue
+from listener import listen
+from threading import Timer, Thread
+from time import sleep
+
 
 app = Flask(__name__)
+@app.route('/mood_lighting_begin', methods=['GET'])
+def mood_lighting_begin():
+    scheduler.start()
+    return "Listener started!"
 
-@app.route('/mood_lighting', methods=['POST'])
-def mood_lighting():
-    # TODO
-	return "Welcome to sislisten"
+@app.route('/mood_lighting_end', methods=['GET'])
+def mood_lighting_end():
+    scheduler.stop()
+    return "Listener stopped!"
 
 def parse_arguments():
     client_args = argparse.ArgumentParser(
@@ -45,14 +53,56 @@ def parse_arguments():
         default="3002",
         help="The port that the sisbot server is using on the table"
     )
+    client_args.add_argument(
+        '-ts',
+        '--tableservice',
+        type=str,
+        default="http://seniordesigntable.msoe.edu:3002",
+        help="The port that the sisbot server is using on the table"
+    )
     return client_args.parse_args()
+
+
+# TODO - move to own module
+class Scheduler(object):
+    def __init__(self, sleep_time, function):
+        self.sleep_time = sleep_time
+        self.function = function
+        self._t = None
+
+    def start(self):
+        if self._t is None:
+            self._t = Timer(self.sleep_time, self._run)
+            self._t.start()
+        else:
+            print("this timer is already running")
+
+    def _run(self):
+        self.function()
+        self._t = Timer(self.sleep_time, self._run)
+        self._t.start()
+
+    def stop(self):
+        if self._t is not None:
+            self._t.cancel()
+            self._t = None
+
+# TODO - add documentation
+def call_listen():
+    listen(app.config['sampling_rate'], app.config['record_seconds'], app.config['ai_service'], app.config['table_service'])
+
 
 if __name__ == '__main__':
     args = parse_arguments()
     app.config['record_seconds'] = args.seconds
     app.config['sampling_rate'] = args.samplingrate
     app.config['ai_service'] = args.aiservice
-    app.config['sisbot_port'] = args.sisbotport
+    app.config['sisbot_port'] = args.sisbotport # TODO - remove port
+    app.config['table_service'] = args.tableservice # TODO - set better default
+
+    global scheduler
+    scheduler = Scheduler(5, call_listen)
+
     flask_env = os.environ.get('FLASK_ENV')
     if flask_env is not None and flask_env.lower() == 'production':
         serve(app, host='127.0.0.1', port=5000, threads=6)
