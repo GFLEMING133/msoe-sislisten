@@ -11,17 +11,12 @@ from time import sleep
 app = Flask(__name__)
 @app.route('/mood_lighting_begin', methods=['GET'])
 def mood_lighting_begin():
-    # global t
-    # print(t)
-    # t.start()
-
     scheduler.start()
     return "Listener started!"
 
 @app.route('/mood_lighting_end', methods=['GET'])
 def mood_lighting_end():
-    # global t
-    # t.cancel()
+    scheduler.stop()
     return "Listener stopped!"
 
 def parse_arguments():
@@ -58,6 +53,13 @@ def parse_arguments():
         default="3002",
         help="The port that the sisbot server is using on the table"
     )
+    client_args.add_argument(
+        '-ts',
+        '--tableservice',
+        type=str,
+        default="http://seniordesigntable.msoe.edu:3002",
+        help="The port that the sisbot server is using on the table"
+    )
     return client_args.parse_args()
 
 class Scheduler(object):
@@ -85,7 +87,7 @@ class Scheduler(object):
 
 
 def call_listen():
-    listen(app.config['sampling_rate'], app.config['record_seconds'], app.config['ai_service'])
+    listen(app.config['sampling_rate'], app.config['record_seconds'], app.config['ai_service'], app.config['table_service'])
 
 
 if __name__ == '__main__':
@@ -94,6 +96,7 @@ if __name__ == '__main__':
     app.config['sampling_rate'] = args.samplingrate
     app.config['ai_service'] = args.aiservice
     app.config['sisbot_port'] = args.sisbotport
+    app.config['table_service'] = args.tableservice
 
     global scheduler
     scheduler = Scheduler(5, call_listen)

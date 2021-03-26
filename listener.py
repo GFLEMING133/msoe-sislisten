@@ -11,6 +11,10 @@ from communicator import communicate_color_to_table
 input_stream = None
 executor = ThreadPoolExecutor(5)
 
+# def pipeline(audio_sample, ai_service, table_service):
+#     response = call_mood_lighting_ai_service(audio_sample, ai_service)
+#     communicate_color_to_table(response["result"], table_service)
+
 
 def call_mood_lighting_ai_service(audio_sample, ai_service):
     """
@@ -22,13 +26,13 @@ def call_mood_lighting_ai_service(audio_sample, ai_service):
     response = requests.post(ai_service, data=data)
     if response.status_code == requests.codes.ok:
         response = response.json()
-        print(response)
     else:
         print(f'Error in AI Service call - code: {response.status_code}')
+        response = 'ERR'
     return response
 
 
-def listen(sampling_rate, record_seconds, ai_service):
+def listen(sampling_rate, record_seconds, ai_service, table_service):
     """
     Task which reads in audio samples and starts off threads
      to handle the responses
@@ -50,10 +54,9 @@ def listen(sampling_rate, record_seconds, ai_service):
         )
 
     data_bytes = input_stream.read(buffer_size)
-    data_stream = io.BytesIO(data_bytes)
-    response = call_mood_lighting_ai_service(data_stream, ai_service)
-    color = translate_coordinates_to_color(response)
+    audio_sample = io.BytesIO(data_bytes)
     print("Got Color!")
-    communicate_color_to_table(color)
-    # executor.submit(call_mood_lighting_ai_service, data_stream, ai_service)
-    return True
+    response = call_mood_lighting_ai_service(audio_sample, ai_service)
+    if response != 'ERR':
+        communicate_color_to_table(response["result"], table_service)
+
