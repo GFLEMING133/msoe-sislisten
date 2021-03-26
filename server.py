@@ -62,6 +62,8 @@ def parse_arguments():
     )
     return client_args.parse_args()
 
+
+# TODO - move to own module
 class Scheduler(object):
     def __init__(self, sleep_time, function):
         self.sleep_time = sleep_time
@@ -85,7 +87,7 @@ class Scheduler(object):
             self._t.cancel()
             self._t = None
 
-
+# TODO - add documentation
 def call_listen():
     listen(app.config['sampling_rate'], app.config['record_seconds'], app.config['ai_service'], app.config['table_service'])
 
@@ -95,8 +97,8 @@ if __name__ == '__main__':
     app.config['record_seconds'] = args.seconds
     app.config['sampling_rate'] = args.samplingrate
     app.config['ai_service'] = args.aiservice
-    app.config['sisbot_port'] = args.sisbotport
-    app.config['table_service'] = args.tableservice
+    app.config['sisbot_port'] = args.sisbotport # TODO - remove port
+    app.config['table_service'] = args.tableservice # TODO - set better default
 
     global scheduler
     scheduler = Scheduler(5, call_listen)

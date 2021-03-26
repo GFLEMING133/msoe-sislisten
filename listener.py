@@ -16,6 +16,7 @@ def pipeline(audio_sample, ai_service, table_service):
     This method serves as the main pipeline for a single thread from the thread pool
     """
     response = call_mood_lighting_ai_service(audio_sample, ai_service)
+    # TODO - include translator once server is set up
     communicate_color_to_table(response["result"], table_service)
 
 
