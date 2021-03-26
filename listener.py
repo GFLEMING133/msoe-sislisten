@@ -11,9 +11,12 @@ from communicator import communicate_color_to_table
 input_stream = None
 executor = ThreadPoolExecutor(5)
 
-# def pipeline(audio_sample, ai_service, table_service):
-#     response = call_mood_lighting_ai_service(audio_sample, ai_service)
-#     communicate_color_to_table(response["result"], table_service)
+def pipeline(audio_sample, ai_service, table_service):
+    """
+    This method serves as the main pipeline for a single thread from the thread pool
+    """
+    response = call_mood_lighting_ai_service(audio_sample, ai_service)
+    communicate_color_to_table(response["result"], table_service)
 
 
 def call_mood_lighting_ai_service(audio_sample, ai_service):
@@ -57,6 +60,7 @@ def listen(sampling_rate, record_seconds, ai_service, table_service):
     audio_sample = io.BytesIO(data_bytes)
     print("Got Color!")
     response = call_mood_lighting_ai_service(audio_sample, ai_service)
+    executor.submit(pipeline, audio_sample, ai_service, table_service)
     if response != 'ERR':
         communicate_color_to_table(response["result"], table_service)
 
