@@ -30,18 +30,7 @@ def pipeline(data_stream, ai_service, table_service):
         print(f'Error in sending AI request - code: {ai_response.status_code}')
         print(ai_response.text)
     else:
-        print(f'Recieved response @ {datetime.datetime.now()}')
-        rgb = ai_response.json()['result']
-        print(ai_response.json())
-        led_info = { "led_primary_color": rgb }
-        wrapper = { 'data': { 'data' : led_info } }
-        table_response = requests.post(table_service, json=wrapper)
-        if table_response.status_code == requests.codes.ok:
-            print(f'Successfully updated color to {rgb}')
-        else:
-            print(
-                f'Error in table request - code: {table_response.status_code}'
-            )
+        communicate_color_to_table(response, table_service)
 
 def call_mood_lighting_ai_service(audio_sample, ai_service):
     """
