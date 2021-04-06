@@ -30,7 +30,7 @@ def pipeline(data_stream, ai_service, table_service):
         print(f'Error in sending AI request - code: {ai_response.status_code}')
         print(ai_response.text)
     else:
-        communicate_color_to_table(response, table_service)
+        communicate_color_to_table(ai_response, table_service)
 
 def call_mood_lighting_ai_service(audio_sample, ai_service):
     """

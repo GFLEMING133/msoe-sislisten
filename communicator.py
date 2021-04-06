@@ -3,7 +3,7 @@ import numpy
 import requests
 import datetime
 
-def communicate_color_to_table(response, table_service):
+def communicate_color_to_table(ai_response, table_service):
     """
     Communicates a color to the table service using the /set_led_color endpoint
     """
