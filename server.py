@@ -45,7 +45,7 @@ def parse_arguments():
         '-ai',
         '--aiservice',
         type=str,
-        default="https://sisyphus-mood-lighting-server.herokuapp.com/get_mood_color_from_audio_stream",
+        default="https://sisyphus-mood-lighting-server.herokuapp.com/get_mood_coordinate_from_audio_stream",
         help="URL for AI Service"
     )
     client_args.add_argument(
