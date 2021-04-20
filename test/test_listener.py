@@ -5,7 +5,7 @@ import wave
 
 @pytest.fixture
 def ai_service():
-    return 'https://sisyphus-mood-lighting-server.herokuapp.com/get_mood_color_from_audio_stream'
+    return 'https://sisyphus-mood-lighting-server.herokuapp.com/get_mood_coordinates_from_audio_stream'
 
 @pytest.fixture
 def audio_sample():
@@ -22,4 +22,4 @@ class TestListener:
         assert_that(response).is_not_none
         assert_that(response).is_type_of(dict)
         assert_that(response).contains_key('result')
-        assert_that(response['result']).is_type_of(str)
+        assert_that(len(response['result'])).is_equal_to(3)
