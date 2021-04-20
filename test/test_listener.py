@@ -5,7 +5,7 @@ import wave
 
 @pytest.fixture
 def ai_service():
-    return 'https://sisyphus-mood-lighting-server.herokuapp.com/get_mood_coordinate_from_audio_stream'
+    return 'https://sisyphus-mood-lighting-server.herokuapp.com/get_mood_coordinates_from_audio_stream'
 
 @pytest.fixture
 def audio_sample():
