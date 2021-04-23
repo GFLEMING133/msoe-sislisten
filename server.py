@@ -39,10 +39,10 @@ def update_settings():
         }
      }
     """
-    if 'settings' not in request.json:
+    if 'data' not in request.json or 'settings' not in request.json['data']:
         return jsonify({'error': 'No settings were found on the request'}), 400
-    if type(request.json['settings']) is dict:
-        for emotion_name, color_value in request.json["settings"].items():
+    if type(request.json['data']['settings']) is dict:
+        for emotion_name, color_value in request.json['data']["settings"].items():
             is_valid_color = type(color_value) is list and len(color_value) == 3 and \
                              is_valid_rgb_value(color_value[0]) and is_valid_rgb_value(color_value[1]) and \
                              is_valid_rgb_value(color_value[2])
@@ -50,11 +50,11 @@ def update_settings():
                 return jsonify({'error': f"The emotion {emotion_name} has the invalid color value {color_value}"}), 400
 
 
-        all_emotions_are_present = all_emotions_present(request.json['settings'])
+        all_emotions_are_present = all_emotions_present(request.json['data']['settings'])
         if not all_emotions_are_present:
             return jsonify({'error': "Incomplete settings. Need emotions disgust, anger, alert, happy, calm, relaxed, sad and neutral."}), 400
         
-        settings = Color_Settings(request.json["settings"])
+        settings = Color_Settings(request.json['data']["settings"])
         return jsonify({'message': "Settings applied!"})
     return jsonify({'error': 'Settings request object is not a valid type'}), 400
 
