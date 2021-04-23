@@ -5,12 +5,34 @@ import color_map_2d
 import numpy
 from concurrent.futures import ThreadPoolExecutor
 from time import sleep
-from translator import translate_coordinates_to_color
+from translator import translate_coordinates_to_color, are_valid_coordinates
 from communicator import communicate_color_to_table
 import datetime
+from color_settings import Color_Settings
 
 input_stream = None
 executor = ThreadPoolExecutor(5)
+
+def worker_callbacks(f):
+    e = f.exception()
+
+    if e is None:
+        return
+
+    trace = []
+    tb = e.__traceback__
+    while tb is not None:
+        trace.append({
+            "filename": tb.tb_frame.f_code.co_filename,
+            "name": tb.tb_frame.f_code.co_name,
+            "lineno": tb.tb_lineno
+        })
+        tb = tb.tb_next
+    print(str({
+        'type': type(e).__name__,
+        'message': str(e),
+        'trace': trace
+    }))
 
 def pipeline(data_stream, ai_service, table_service):
     """
@@ -30,7 +52,13 @@ def pipeline(data_stream, ai_service, table_service):
         print(f'Error in sending AI request - code: {ai_response.status_code}')
         print(ai_response.text)
     else:
-        communicate_color_to_table(ai_response, table_service)
+        coordinates = ai_response.json()['result']
+        if are_valid_coordinates(coordinates):
+            color = translate_coordinates_to_color(coordinates[0], coordinates[1], coordinates[2])
+            communicate_color_to_table(color, table_service)
+        else:
+            print(f'Invalid response from AI Service, coordinates malformed: {coordinates}')
+
 
 def call_mood_lighting_ai_service(audio_sample, ai_service):
     """
@@ -54,10 +82,7 @@ def listen(sampling_rate, record_seconds, ai_service, table_service):
     Task which reads in audio samples and starts off threads
      to handle the responses
     """
-    #global input_stream, executor
     buffer_size = sampling_rate * record_seconds
-    print('buffer size ' + str(buffer_size))
-
     pa = pyaudio.PyAudio()
     input_stream = pa.open(
         format=pyaudio.paInt16,
@@ -68,6 +93,4 @@ def listen(sampling_rate, record_seconds, ai_service, table_service):
     )
     data_bytes = input_stream.read(buffer_size)
     data_stream = io.BytesIO(data_bytes)
-    #pipeline(data_stream, ai_service, table_service)
-    executor.submit(pipeline, data_stream, ai_service, table_service)
-    
+    executor.submit(pipeline, data_stream, ai_service, table_service).add_done_callback(worker_callbacks)

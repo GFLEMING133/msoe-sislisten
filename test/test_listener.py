@@ -5,7 +5,7 @@ import wave
 
 @pytest.fixture
 def ai_service():
-    return 'https://sisyphus-mood-lighting-server.herokuapp.com/get_mood_coordinates_from_audio_stream'
+    return 'https://sisbot-ai-service.uc.r.appspot.com/get_mood_coordinates_from_audio_stream'
 
 @pytest.fixture
 def audio_sample():
@@ -22,4 +22,9 @@ class TestListener:
         assert_that(response).is_not_none
         assert_that(response).is_type_of(dict)
         assert_that(response).contains_key('result')
+
         assert_that(len(response['result'])).is_equal_to(3)
+        assert_that(response['result'][0]).is_between(-1, 1) # valence
+        assert_that(response['result'][1]).is_between(-1, 1) # energy
+        assert_that(response['result'][2]).is_type_of(str) # alpha
+

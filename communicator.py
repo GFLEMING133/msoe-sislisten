@@ -3,13 +3,11 @@ import numpy
 import requests
 import datetime
 
-def communicate_color_to_table(ai_response, table_service):
+def communicate_color_to_table(rgb, table_service):
     """
     Communicates a color to the table service using the /set_led_color endpoint
     """
     print(f'Recieved response @ {datetime.datetime.now()}')
-    rgb = ai_response.json()['result']
-    print(ai_response.json())
     led_info = { "led_primary_color": rgb }
     wrapper = { 'data': { 'data' : led_info } }
     table_response = requests.post(table_service, json=wrapper)
