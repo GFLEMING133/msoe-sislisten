@@ -161,7 +161,7 @@ class TestServer:
         }
 
         # Act
-        response = client.post('/mood_lighting_settings', json={'settings': settings})
+        response = client.post('/mood_lighting_settings', json={'data': {'settings': settings}})
         json_response = json.loads(response.get_data(as_text=True))
 
         # Assert
@@ -169,7 +169,43 @@ class TestServer:
         assert_that(json_response['message']).is_equal_to('Settings applied!')
         assert_that(Color_Settings().color_dictionary).is_equal_to(settings)
 
-    def test_update_settings_should_return_error_when_settings_key_is_not_found_on_request(self, client):
+    def test_update_settings_should_return_error_when_data_key_is_not_found_on_request(self, client):
+        # Arrange
+        old_settings = {
+            "disgust" : [255, 165, 0],
+            "anger": [0, 0, 0],
+            "alert": [0, 0, 0],
+            "happy": [123, 234, 123],
+            "calm": [0, 0, 0],
+            "relaxed": [0, 0, 0],
+            "sad": [0, 0, 0],
+            "neutral": [0, 0, 0]
+        }
+        Color_Settings(old_settings)
+
+        settings = {
+            'settings': {
+                "disgust" : [255, 165, 0],
+                "anger": [0, 0, 0],
+                "alert": [0, 0, 0],
+                "happy": [0, 0, 0],
+                "calm": [0, 0, 0],
+                "relaxed": [0, 0, 0],
+                "sad": [0, 0, 0],
+                "neutral": [0, 0, 0]
+            }
+        }
+
+        # Act
+        response = client.post('/mood_lighting_settings', json=settings)
+        json_response = json.loads(response.get_data(as_text=True))
+
+        # Assert
+        assert_that(response.status_code).is_equal_to(400)
+        assert_that(json_response['error']).is_equal_to('No settings were found on the request')
+        assert_that(Color_Settings().color_dictionary).is_equal_to(old_settings)
+
+    def test_update_settings_should_return_error_when_settings_and_data_key_is_not_found_on_request(self, client):
         # Arrange
         old_settings = {
             "disgust" : [255, 165, 0],
@@ -219,7 +255,7 @@ class TestServer:
         Color_Settings(old_settings)
 
         # Act
-        response = client.post('/mood_lighting_settings', json={'settings': 1})
+        response = client.post('/mood_lighting_settings', json={'data': {'settings': 1}})
         json_response = json.loads(response.get_data(as_text=True))
 
         # Assert
@@ -243,7 +279,7 @@ class TestServer:
         Color_Settings(old_settings)
 
         # Act
-        response = client.post('/mood_lighting_settings', json={'settings': {'disgust': color_value}})
+        response = client.post('/mood_lighting_settings', json={'data': {'settings': {'disgust': color_value}}})
         json_response = json.loads(response.get_data(as_text=True))
 
         # Assert
@@ -267,7 +303,7 @@ class TestServer:
         Color_Settings(old_settings)
 
         # Act
-        response = client.post('/mood_lighting_settings', json={'settings': settings_value})
+        response = client.post('/mood_lighting_settings', json={'data': {'settings': settings_value}})
         json_response = json.loads(response.get_data(as_text=True))
 
         # Assert
