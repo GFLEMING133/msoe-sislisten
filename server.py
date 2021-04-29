@@ -1,5 +1,6 @@
 import os
 import argparse
+import json
 from flask import Flask, request, jsonify
 from waitress import serve
 from queue import Queue
@@ -7,8 +8,10 @@ from time import sleep
 from color_settings import Color_Settings
 from scheduler import Scheduler
 from listener import listen
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 @app.route('/mood_lighting_begin', methods=['GET'])
 def mood_lighting_begin():
@@ -39,10 +42,17 @@ def update_settings():
         }
      }
     """
-    if 'data' not in request.json or 'settings' not in request.json['data']:
+    data_dictionary = None
+    if 'data' not in request.form:
+        return jsonify({'error': 'No data found on request form'}), 400
+    try:
+        data_dictionary = json.loads(request.form['data'])
+    except ValueError:
+        return jsonify({'error': 'The request is not in a valid format'}), 400
+    if not type(data_dictionary) is dict or 'data' not in data_dictionary or 'settings' not in data_dictionary['data']:
         return jsonify({'error': 'No settings were found on the request'}), 400
-    if type(request.json['data']['settings']) is dict:
-        for emotion_name, color_value in request.json['data']["settings"].items():
+    if type(data_dictionary['data']['settings']) is dict:
+        for emotion_name, color_value in data_dictionary['data']["settings"].items():
             is_valid_color = type(color_value) is list and len(color_value) == 3 and \
                              is_valid_rgb_value(color_value[0]) and is_valid_rgb_value(color_value[1]) and \
                              is_valid_rgb_value(color_value[2])
@@ -50,11 +60,11 @@ def update_settings():
                 return jsonify({'error': f"The emotion {emotion_name} has the invalid color value {color_value}"}), 400
 
 
-        all_emotions_are_present = all_emotions_present(request.json['data']['settings'])
+        all_emotions_are_present = all_emotions_present(data_dictionary['data']['settings'])
         if not all_emotions_are_present:
-            return jsonify({'error': "Incomplete settings. Need emotions disgust, anger, alert, happy, calm, relaxed, sad and neutral."}), 400
+            return jsonify({'error': "Incomplete settings. Need emotions disgust, angry, alert, happy, calm, relaxed, sad and neutral."}), 400
         
-        settings = Color_Settings(request.json['data']["settings"])
+        settings = Color_Settings(data_dictionary['data']["settings"])
         return jsonify({'message': "Settings applied!"})
     return jsonify({'error': 'Settings request object is not a valid type'}), 400
 
@@ -86,7 +96,7 @@ def is_valid_rgb_value(rgb_value):
 
 def all_emotions_present(settings):
     return "disgust" in settings and \
-            "anger" in settings and \
+            "angry" in settings and \
             "alert" in settings and \
             "happy" in settings and \
             "calm" in settings and \
@@ -147,6 +157,6 @@ if __name__ == '__main__':
 
     flask_env = os.environ.get('FLASK_ENV')
     if flask_env is not None and flask_env.lower() == 'production':
-        serve(app, host='127.0.0.1', port=5000, threads=6)
+        serve(app, host='0.0.0.0', port=5000, threads=6)
     else:
         app.run(debug=True)
