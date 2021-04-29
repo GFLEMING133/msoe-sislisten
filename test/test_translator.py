@@ -8,7 +8,7 @@ import wave
 def color_settings_default():
     settings = {
         "disgust" : [128, 0, 128],
-        "anger": [255, 0, 0],
+        "angry": [255, 0, 0],
         "alert": [255, 165, 0],
         "happy": [255, 255, 0],
         "calm": [0, 205, 0],
@@ -28,7 +28,7 @@ def color_settings_flipped():
         "calm": [0, 255, 0],
         "happy": [255, 0, 0],
         "alert": [255, 255, 0],
-        "anger": [128, 0, 128],
+        "angry": [128, 0, 128],
         "disgust": [255, 241, 224]
     }
 

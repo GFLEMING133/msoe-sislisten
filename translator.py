@@ -59,7 +59,7 @@ def translate_coordinates_to_color(valence, energy, alpha):
             sad_pos,
             neu_pos],
             [settings["disgust"],
-            settings["anger"],
+            settings["angry"],
             settings["alert"],
             settings["happy"],
             settings["calm"],
@@ -74,7 +74,7 @@ def translate_coordinates_to_color(valence, energy, alpha):
     y = y_center - int((h/2) * energy)
 
     color = numpy.median(emo_map[y-2:y+2, x-2:x+2], axis=0).mean(axis=0)
-    response = "#" + format(int(color[2]), '02x') + format(int(color[1]), '02x') + format(int(color[0]), '02x') + alpha
+    response = "#" + format(int(color[0]), '02x') + format(int(color[1]), '02x') + format(int(color[2]), '02x') + '00'
     print(response)
     return response
 
