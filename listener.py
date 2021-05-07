@@ -94,3 +94,5 @@ def listen(sampling_rate, record_seconds, ai_service, table_service):
     data_bytes = input_stream.read(buffer_size)
     data_stream = io.BytesIO(data_bytes)
     executor.submit(pipeline, data_stream, ai_service, table_service).add_done_callback(worker_callbacks)
+    input_stream.stop_stream()
+    input_stream.close()

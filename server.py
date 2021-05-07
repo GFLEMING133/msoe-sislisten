@@ -153,7 +153,7 @@ if __name__ == '__main__':
     app.config['table_service'] = args.tableservice
 
     global scheduler
-    scheduler = Scheduler(5, call_listen)
+    scheduler = Scheduler(1, call_listen)
 
     flask_env = os.environ.get('FLASK_ENV')
     if flask_env is not None and flask_env.lower() == 'production':
