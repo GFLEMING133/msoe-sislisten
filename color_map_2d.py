@@ -1,38 +1,31 @@
 import numpy as np
 import scipy.spatial
+import operator
+import math
 
+def calculate_distance_between_points(first_point, second_point):
+    return math.sqrt( ((first_point[0]-second_point[0])**2)+((first_point[1]-second_point[1])**2) )
 
-def get_color_for_point(point_coords, list_of_point_centers, list_of_colors):
-    """
-    get_color_for_point() computes an RGB color value for a point in the
-    (-1, 1) 2D plane, based on a set of RGB color values, defined on particular
-    points of the same 2D plane.
-    :param point_coords: coordinates for the point for which we want to
-    calculate its color
-    :param list_of_point_centers: list of point coodinates
-    [[x1, y1], ..., [xN, yN] of the of the aforementioned colors
-    :param list_of_colors:  list of RGB color values [[R1, G1, B1], ...,
-    [RN, GN, BN]] for the N points in the 2D plane (see prev atribute)
-    :return: interpolated RGB color for the input point (1st arg)
-    """
-    color = np.array([0.0, 0.0, 0.0])
-    # get distances of the "query" point from all other points
-    distances = scipy.spatial.distance.cdist([point_coords],
-                                             list_of_point_centers)[0]
-    
-    # get weights and compute new RGB value as weighted sum:
-    weights = 1 / (distances + 0.1)
-    for ic, c in enumerate(list_of_colors):
-        color += (np.array(c) * weights[ic])
-    color /= (np.sum(weights))
-    sum_color = np.sum(color)
-    required_sum_color = 600.0
-    if color.max() * (required_sum_color/sum_color) <= 255:
-        color *= (required_sum_color/sum_color)
-    else:
-        color *= (255/(color.max()))
-    return color
+def is_valid_center_point(point_coords):
+    return -0.1 < point_coords[0] < 0.1 and -0.1 < point_coords[1] < 0.1
 
+# Note this method was rewritten from the original implementation to make the colors stand out more on the sisyphus table.
+# It's gets the color based on the shortest distance from the mood center and it only uses the colors specificed for the given moods
+# instead of interoplating between the colors.
+
+# If for any reason the original implementation is needed it can be viewed here: https://github.com/tyiannak/color_your_music_mood/blob/master/color_map_2d.py
+def get_color_for_point(point_cords, list_of_point_centers, list_of_colors):
+    if is_valid_center_point(point_cords):
+        color_index = list_of_point_centers.index([0.0, 0.0])
+        return list_of_colors[color_index]
+    distances = []
+    for i in range(len(list_of_point_centers)):
+        point_center = list_of_point_centers[i]
+        is_point_at_origin = point_center[0] == 0.0 and point_center[1] == 0.0
+        if not is_point_at_origin:
+            distances.append((i, calculate_distance_between_points(point_cords, point_center)))
+    min_distance_tuple = min(distances, key=operator.itemgetter(1))
+    return list_of_colors[min_distance_tuple[0]]
 
 def create_2d_color_map(list_of_points, list_of_colors, height, width):
     """
